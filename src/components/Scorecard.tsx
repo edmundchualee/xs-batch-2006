@@ -15,7 +15,7 @@ export function ScoreFacts({ e, going }: { e: EventRow; going?: number | null })
   if (facts.length % 2) facts.push(['', '']);
   return (
     <dl>
-      {facts.map(([k, v], i) => <div key={i}><dt>{k || ' '}</dt><dd>{v || ' '}</dd></div>)}
+      {facts.map(([k, v], i) => <div key={i} className={k ? undefined : 'filler'}><dt>{k || ' '}</dt><dd>{v || ' '}</dd></div>)}
     </dl>
   );
 }
