@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Header, Footer, Spinner } from '../components/Chrome';
-import { supabase, fmt, isClosed, isPast, friendlyError, type EventRow } from '../lib/supabase';
+import { ScoreFacts } from '../components/Scorecard';
+import { supabase, isClosed, isPast, friendlyError, type EventRow } from '../lib/supabase';
 
 export default function EventPage() {
   const { slug } = useParams();
@@ -19,9 +20,9 @@ export default function EventPage() {
     });
   }, [e]);
 
-  if (e === undefined) return <><Header solid /><Spinner /></>;
+  if (e === undefined) return <><Header /><Spinner /></>;
   if (e === null) return (
-    <><Header solid /><main className="wrap center"><div className="empty">This event isn’t available. <Link to="/events">See all events</Link></div></main><Footer /></>
+    <><Header /><main className="wrap center"><div className="empty">This event isn’t available. <Link to="/events">See all events</Link></div></main><Footer /></>
   );
 
   const full = e.capacity != null && count != null && count.registered >= e.capacity;
@@ -29,21 +30,21 @@ export default function EventPage() {
 
   return (
     <>
-      <Header solid />
-      <section className="event-hero">
-        <div className="wrap">
-          <Link to="/events" style={{ color: 'var(--gold)', fontSize: 14, fontWeight: 600 }}>← All events</Link>
+      <Header />
+      <div className="wrap">
+        <section className="event-hero">
+          <Link to="/events" className="eyebrow" style={{ textDecoration: 'none' }}>← All events</Link>
           <h1>{e.title}</h1>
           {e.tagline && <p>{e.tagline}</p>}
-          <dl className="facts">
-            <div><dt>When</dt><dd>{fmt.date(e.starts_at)}{e.starts_at && ` · ${fmt.time(e.starts_at)}`}</dd></div>
-            {e.venue && <div><dt>Where</dt><dd>{e.venue_map_url ? <a href={e.venue_map_url} target="_blank" rel="noreferrer">{e.venue} ↗</a> : e.venue}</dd></div>}
-            {e.fee && <div><dt>Fee</dt><dd>{e.fee}</dd></div>}
-            {e.registration_deadline && <div><dt>Register by</dt><dd>{fmt.date(e.registration_deadline)}</dd></div>}
-            {count && <div><dt>Going</dt><dd>{count.registered}{e.capacity ? ` of ${e.capacity}` : ''} batchmates</dd></div>}
-          </dl>
+        </section>
+        <div className="scorecard" style={{ marginTop: 32 }}>
+          <div className="intro">
+            <span className="eyebrow">Official scorecard</span>
+            <p>{isPast(e) ? 'This event has passed.' : isClosed(e) ? 'Registration is closed.' : full ? 'Fully booked. Sign up for the waitlist below.' : spotsLeft != null ? `${spotsLeft} slot${spotsLeft === 1 ? '' : 's'} left. Sign the card below.` : 'Registration is open. Sign the card below.'}</p>
+          </div>
+          <ScoreFacts e={e} going={count?.registered ?? null} />
         </div>
-      </section>
+      </div>
       <main className="wrap event-grid">
         <div style={{ display: 'grid', gap: 20, minWidth: 0 }}>
           {e.description ? <p className="prose">{e.description}</p> : <p className="muted">More details soon.</p>}
@@ -116,7 +117,7 @@ function RegisterForm({ e, full, spotsLeft }: { e: EventRow; full: boolean; spot
         </label>
       ))}
       {error && <div className="alert bad" role="alert">{error}</div>}
-      <button className="btn navy" disabled={busy}>{busy ? 'Saving…' : full ? 'Join the waitlist' : 'Register'}</button>
+      <button className="btn navy" disabled={busy}>{busy ? 'Saving…' : full ? 'Join the waitlist' : 'Sign the card'}</button>
     </form>
   );
 }

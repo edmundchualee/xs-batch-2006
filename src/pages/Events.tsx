@@ -10,7 +10,7 @@ export function EventCard({ e }: { e: EventRow }) {
       <div className="date"><b>{fmt.day(e.starts_at)}</b><span>{fmt.mon(e.starts_at)}</span></div>
       <div className="body">
         <h3>{e.title}</h3>
-        <span className="muted" style={{ fontSize: 14 }}>{[e.starts_at && fmt.time(e.starts_at), e.venue].filter(Boolean).join(' · ') || 'Details to follow'}</span>
+        <span className="meta">{[e.starts_at && fmt.time(e.starts_at), e.venue].filter(Boolean).join(' · ') || 'Details to follow'}</span>
         {past ? <span className="pill muted">Past event</span> : isClosed(e) ? <span className="pill bad">Registration closed</span> : <span className="pill ok">Registration open</span>}
       </div>
     </Link>
@@ -28,17 +28,17 @@ export default function Events() {
 
   return (
     <>
-      <Header solid />
+      <Header />
       <main className="wrap">
         <section className="section">
-          <div><span className="eyebrow">Batch 2006</span><h1 style={{ fontSize: 'clamp(34px,5vw,52px)' }}>Events</h1></div>
+          <div className="section-head"><h1 style={{ fontSize: 'clamp(36px,5vw,56px)' }}>Events</h1><span className="eyebrow">Batch 2006</span></div>
           {events === null ? <Spinner /> : upcoming.length === 0
             ? <div className="empty">No upcoming events yet. Check back soon.</div>
             : <div className="events">{upcoming.map(e => <EventCard key={e.id} e={e} />)}</div>}
         </section>
         {past.length > 0 && (
           <section className="section" style={{ paddingTop: 0 }}>
-            <h2 style={{ fontSize: 28 }}>Past events</h2>
+            <div className="section-head"><h2>Past events</h2></div>
             <div className="events">{past.map(e => <EventCard key={e.id} e={e} />)}</div>
           </section>
         )}

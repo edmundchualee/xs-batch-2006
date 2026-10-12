@@ -23,10 +23,10 @@ export default function Committee() {
       .then(({ data }) => setMember(data ?? null));
   }, [session]);
 
-  if (session === undefined || (session && member === undefined)) return <><Header solid /><Spinner /></>;
-  if (!session) return <><Header solid /><Auth /></>;
+  if (session === undefined || (session && member === undefined)) return <><Header /><Spinner /></>;
+  if (!session) return <><Header /><Auth /></>;
   if (!member) return (
-    <><Header solid /><main className="center"><div className="card" style={{ maxWidth: 420 }}>
+    <><Header /><main className="center"><div className="card" style={{ maxWidth: 420 }}>
       <h2>Not a committee account</h2>
       <p className="muted" style={{ margin: 0 }}>You’re signed in, but this account isn’t on the committee.</p>
       <button className="btn navy" onClick={() => supabase.auth.signOut()}>Sign out</button>
@@ -35,7 +35,7 @@ export default function Committee() {
 
   return (
     <>
-      <Header solid />
+      <Header />
       <main className="wrap admin">
         <div className="admin-head">
           <div><span className="eyebrow">Committee</span><h1>Hi, {member.full_name.split(' ')[0] || 'there'}</h1></div>

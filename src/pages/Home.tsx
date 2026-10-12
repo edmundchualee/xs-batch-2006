@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import LightField from '../components/LightField';
 import { Header, Footer, Spinner } from '../components/Chrome';
-import { supabase, fmt, isPast, isClosed, type EventRow } from '../lib/supabase';
+import { ScoreFacts } from '../components/Scorecard';
+import { supabase, isPast, isClosed, type EventRow } from '../lib/supabase';
 import { EventCard } from './Events';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
 
   const upcoming = (events ?? []).filter(e => !isPast(e));
   const next = upcoming[0];
+  const rest = upcoming.slice(1);
   const years = new Date().getFullYear() - 2006;
 
   return (
@@ -22,53 +24,46 @@ export default function Home() {
       <section className="hero">
         <LightField />
         <div className="wrap hero-inner">
-          <img className="seal" src="/xs-seal.png" alt="Xavier School seal" />
-          <span className="motto">Luceat Lux</span>
-          <h1>Xavier School <em>Batch 2006</em></h1>
-          <div className="years"><i />2006 · {years} YEARS · {2006 + years}<i /></div>
-          <p>Our batch’s home for reunions, golf days and everything in between. Find what’s coming up and save your spot.</p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {next ? <Link className="btn" to={`/events/${next.slug}`}>{isClosed(next) ? 'See' : 'Register for'} {next.title}</Link>
-                  : <Link className="btn" to="/events">See events</Link>}
-          </div>
+          <div className="rule"><img className="seal" src="/xs-seal.png" alt="Xavier School seal" /></div>
+          <span className="eyebrow">Class of 2006 · {years} years</span>
+          <h1>Xavier School<br />Batch of 2006</h1>
+          <p className="lede">Luceat Lux. {years} years on, still the same table.</p>
+          <Link className="btn" to={next ? `/events/${next.slug}` : '/events'}>{next && !isClosed(next) ? 'Reserve your place' : 'See events'}</Link>
           <span className="hint">Move or tap across the light.</span>
         </div>
       </section>
 
       <main className="wrap">
         {events === null ? <Spinner /> : (
-          <>
-            {next && (
-              <section className="section">
-                <span className="eyebrow">Next up</span>
-                <div className="feature">
-                  <div style={{ display: 'grid', gap: 12, position: 'relative', zIndex: 1 }}>
-                    <h2>{next.title}</h2>
-                    {next.tagline && <p style={{ margin: 0, color: 'rgba(255,255,255,.8)', fontSize: 18 }}>{next.tagline}</p>}
-                    <div><Link className="btn" to={`/events/${next.slug}`}>{isClosed(next) ? 'Event details' : 'Register now'}</Link></div>
-                  </div>
-                  <dl>
-                    <div><dt>When</dt><dd>{fmt.date(next.starts_at)}{next.starts_at && ` · ${fmt.time(next.starts_at)}`}</dd></div>
-                    {next.venue && <div><dt>Where</dt><dd>{next.venue}</dd></div>}
-                    {next.fee && <div><dt>Fee</dt><dd>{next.fee}</dd></div>}
-                    {next.registration_deadline && !isClosed(next) && <div><dt>Register by</dt><dd>{fmt.date(next.registration_deadline)}</dd></div>}
-                  </dl>
-                </div>
-              </section>
-            )}
+          <section className="section">
+            <div className="section-head">
+              <h2>The Fixture List</h2>
+              <Link to="/events" className="eyebrow" style={{ textDecoration: 'none' }}>All events →</Link>
+            </div>
 
-            <section className="section" style={{ paddingTop: next ? 0 : undefined }}>
-              <div className="section-head">
-                <div><span className="eyebrow">Batch events</span><h2>What’s coming up</h2></div>
-                <Link to="/events" className="btn ghost sm">All events</Link>
+            {next ? (
+              <div className="scorecard">
+                <div className="intro">
+                  <span className="eyebrow">Next up{isClosed(next) ? ' · Registration closed' : ''}</span>
+                  <h3>{next.title}</h3>
+                  {next.tagline && <p>{next.tagline}</p>}
+                  <div><Link className="btn navy" to={`/events/${next.slug}`}>{isClosed(next) ? 'Event details' : 'Sign the card'}</Link></div>
+                </div>
+                <ScoreFacts e={next} />
               </div>
-              {upcoming.length === 0
-                ? <div className="empty">No upcoming events yet. The committee will post the next one here.</div>
-                : <div className="events">{upcoming.slice(0, 6).map(e => <EventCard key={e.id} e={e} />)}</div>}
-            </section>
-          </>
+            ) : <div className="empty">No upcoming events yet. The committee will post the next one here.</div>}
+
+            {rest.length > 0 && <div className="events">{rest.slice(0, 6).map(e => <EventCard key={e.id} e={e} />)}</div>}
+          </section>
         )}
       </main>
+
+      <section className="about">
+        <div className="wrap">
+          <span className="eyebrow">The Batch</span>
+          <p>Our home for reunions, golf days and every excuse to get Batch 2006 back together. See what’s coming up and save your spot in a minute.</p>
+        </div>
+      </section>
       <Footer />
     </>
   );
